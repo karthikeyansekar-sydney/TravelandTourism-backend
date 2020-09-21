@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
   const itinerarySchema = new mongoose.Schema({
-    event_date: Date,
+    eventDate: Date,
     place: String,
     activity: String
   });

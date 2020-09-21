@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require('bcrypt');
 
   const db = require("./models");
 
@@ -32,9 +33,32 @@ const mongoose = require("mongoose");
     );
   };
 
+  const createItinerary = function(tourId, itinerary, image) {
+    console.log("\n>> Add Itinerary:\n", itinerary);
+    return db.Tour.findByIdAndUpdate(
+      tourId,
+      {
+        $push: {
+          itineraries: {
+          eventDate: itinerary.eventDate,
+            place: itinerary.place,
+            activity: itinerary.activity,
+            images: [{
+                url: image.url,
+                title: image.title
+              }]
+        }
+      }
+      },
+      { new: true, useFindAndModify: false }
+    );
+  };
+
+
   const run = async function() {
 
     await db.Tour.deleteMany({});  //clear the collection first
+    await db.User.deleteMany({});  //clear the collection first
 
     var tour = await createTour({
       title: "sydney",
@@ -64,19 +88,32 @@ const mongoose = require("mongoose");
     });
     console.log("\n>> tour:\n", tour);
 
-    await db.User.deleteMany({});  //clear the collection first
+    var itinerary = await createItinerary(tour1._id,{
+        eventDate: "2020-09-01",
+        place: "Manly beach",
+        activity: "Sight seeing"
+    },
+    {
+       title: "beach",
+       url: "https://www.abc.net.au/cm/rimage/8363164-16x9-xlarge.jpg?v=2"
+    });
+
+ // tour1 = await createItinerary(tour1._id,
+ // });
+ console.log("\n>> tour:\n", tour);
+
 
     var user1 = await createUser({
       name: "Luke",
         email: "Luke@ga.com",
-        passwordDigest: "chicken",
+        passwordDigest: bcrypt.hashSync('chicken', 10),
         admin: true
  });
 
  var user2 = await createUser({
    name: "Kart",
      email: "Kart@ga.com",
-     passwordDigest: "chicken",
+     passwordDigest: bcrypt.hashSync('chicken', 10),
      admin: true
 });
 
